@@ -37,8 +37,7 @@ def train(generator, discriminator, gan, dataset, latent_dim):
             util.print_eval(generator, discriminator, dataset, latent_dim, i)
 
 
-# MAIN ( https://machinelearningmastery.com/how-to-develop-a-generative-adversarial-network-for-a-cifar-10-small-object-photographs-from-scratch/)
-
+# MAIN 
 # size of the latent space
 LATENT_DIM = 100
 # create the discriminator

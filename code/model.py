@@ -9,6 +9,8 @@ from tensorflow.keras import Sequential
 
 
 def define_discriminator(in_shape=(32, 32, 3)):
+
+    # modelled after discriminator defined in Brownlee's work
     discriminator = Sequential()
     discriminator.add(Conv2D(64, (3, 3), padding="same", input_shape=in_shape))
     discriminator.add(LeakyReLU(alpha=0.2))

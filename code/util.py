@@ -51,13 +51,6 @@ def load_dataset():
 
 # # code adapted from https://machinelearningmastery.com/how-to-develop-a-generative-adversarial-network-for-a-cifar-10-small-object-photographs-from-scratch/
 
-# generate points in latent space as input for the generator
-def generate_latent_points(latent_dim, sample_size):
-
-    x_input = np.random.rand(latent_dim * sample_size)
-    x_input = x_input.reshape(sample_size, latent_dim)
-    return x_input
-
 
 # genereating the samples needed for the GAN to train
 def generate_samples(dataset, generator_model, latent_dim, NUM_SAMPLES):
@@ -76,6 +69,7 @@ def generate_samples(dataset, generator_model, latent_dim, NUM_SAMPLES):
     return (real_images, real_labels), (fake_images, fake_labels)
 
 
+# taken directly from source
 # create and save a plot of generated images
 def generate_images(image_ex, epoch, size=5):
     # scale from [-1,1] to [0,1]
@@ -92,6 +86,14 @@ def generate_images(image_ex, epoch, size=5):
     filename = "./output/image_of_faces_epoch%03d.png" % (epoch + 1)
     plt.pyplot.savefig(filename)
     plt.pyplot.close()
+
+
+# generate points in latent space as input for the generator
+def generate_latent_points(latent_dim, sample_size):
+
+    x_input = np.random.rand(latent_dim * sample_size)
+    x_input = x_input.reshape(sample_size, latent_dim)
+    return x_input
 
 
 def print_eval(generator, discriminator, dataset, latent_dim, epoch):
