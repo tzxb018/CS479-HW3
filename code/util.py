@@ -78,6 +78,10 @@ def generate_images(image_ex, epoch):
         plt.pyplot.imshow(image_ex[i])
         plt.pyplot.axis("off")
 
+    # makring sure there is an output folder to save in
+    if not os.path.exists("output"):
+        os.makedirs("output")
+
     save_file = "./output/image_of_faces_epoch%03d.png" % (epoch + 1)
     plt.pyplot.savefig(save_file)
     plt.pyplot.close()
@@ -104,6 +108,9 @@ def print_eval(generator, discriminator, dataset, latent_dim, epoch):
     fake_loss, fake_acc = discriminator.evaluate(fake_images, fake_labels, verbose=0)
     real_loss, real_acc = discriminator.evaluate(real_images, real_labels, verbose=0)
 
+    # makring sure there is an models folder to save in
+    if not os.path.exists("models"):
+        os.makedirs("models")
     file_name = "./models/generator_model_%03d" % (epoch + 1)
     generator.save(file_name)
     generate_images(fake_images, epoch)
