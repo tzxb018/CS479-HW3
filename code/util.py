@@ -1,8 +1,8 @@
-import numpy as np  # to use numpy arrays
-import tensorflow as tf  # to specify and run computation graphs
-import tensorflow_datasets as tfds  # to load training data
-import matplotlib.pyplot as plt  # to visualize data and draw plots
-from tqdm import tqdm  # to track progress of loops
+import numpy as np
+import tensorflow as tf
+import tensorflow_datasets as tfds
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 import os, time, random
 import matplotlib as plt
 from numpy.random import randn
@@ -52,14 +52,15 @@ def load_dataset():
 # # code adapted from https://machinelearningmastery.com/how-to-develop-a-generative-adversarial-network-for-a-cifar-10-small-object-photographs-from-scratch/
 
 
-# genereating the samples needed for the GAN to train
-def generate_samples(dataset, generator_model, latent_dim, NUM_SAMPLES):
+def get_fake_and_real_images_and_labels(
+    dataset, generator_model, latent_dim, NUM_SAMPLES
+):
 
-    # generating the real samples from the dataset
+    # generating the real images and labels by taking from the dataset
     real_images = dataset[np.random.randint(0, dataset.shape[0], NUM_SAMPLES)]
     real_labels = np.ones((NUM_SAMPLES, 1))
 
-    # generating the fake samples from the generator model
+    # generating the fake images and labels from the generator model
     generator_input = np.random.randn(latent_dim * NUM_SAMPLES)
     generator_input = generator_input.reshape(NUM_SAMPLES, latent_dim)
     fake_images = generator_model.predict(generator_input)
@@ -69,26 +70,20 @@ def generate_samples(dataset, generator_model, latent_dim, NUM_SAMPLES):
     return (real_images, real_labels), (fake_images, fake_labels)
 
 
-# taken directly from source
-# create and save a plot of generated images
-def generate_images(image_ex, epoch, size=5):
-    # scale from [-1,1] to [0,1]
+# plotting the outputted images
+def generate_images(image_ex, epoch):
     image_ex = (image_ex + 1) / 2.0
-    # plot images
-    for i in range(size * size):
-        # define subplot
-        plt.pyplot.subplot(size, size, 1 + i)
-        # turn off axis
-        plt.pyplot.axis("off")
-        # plot raw pixel data
+    for i in range(25):
+        plt.pyplot.subplot(5, 5, i + 1)
         plt.pyplot.imshow(image_ex[i])
-    # save plot to file
-    filename = "./output/image_of_faces_epoch%03d.png" % (epoch + 1)
-    plt.pyplot.savefig(filename)
+        plt.pyplot.axis("off")
+
+    save_file = "./output/image_of_faces_epoch%03d.png" % (epoch + 1)
+    plt.pyplot.savefig(save_file)
     plt.pyplot.close()
 
 
-# generate points in latent space as input for the generator
+# generate points in latent space as input for the generator (taken from source)
 def generate_latent_points(latent_dim, sample_size):
 
     x_input = np.random.rand(latent_dim * sample_size)
@@ -98,11 +93,12 @@ def generate_latent_points(latent_dim, sample_size):
 
 def print_eval(generator, discriminator, dataset, latent_dim, epoch):
 
-    # retrieving the samples for the discriminator to evaluate on
+    # retrieving the images and labels for the discriminator to evaluate on
     NUM_SAMPLES = 150
-    (real_images, real_labels), (fake_images, fake_labels) = generate_samples(
-        dataset, generator, latent_dim, NUM_SAMPLES
-    )
+    (
+        (real_images, real_labels),
+        (fake_images, fake_labels),
+    ) = get_fake_and_real_images_and_labels(dataset, generator, latent_dim, NUM_SAMPLES)
 
     # evaluating the real and fake samples with the discriminator
     fake_loss, fake_acc = discriminator.evaluate(fake_images, fake_labels, verbose=0)

@@ -1,23 +1,23 @@
-import numpy as np  # to use numpy arrays
-import tensorflow as tf  # to specify and run computation graphs
-import tensorflow_datasets as tfds  # to load training data
-import matplotlib.pyplot as plt  # to visualize data and draw plots
-from tqdm import tqdm  # to track progress of loops
+import numpy as np  
+import tensorflow as tf  
+import tensorflow_datasets as tfds  
+import matplotlib.pyplot as plt 
+from tqdm import tqdm  
 import model
 import util
 import random
 
 # code adapted from https://machinelearningmastery.com/how-to-develop-a-generative-adversarial-network-for-a-cifar-10-small-object-photographs-from-scratch/
-def train(generator, discriminator, gan, dataset, latent_dim):
+def train_model(gan, generator, discriminator, dataset, latent_dim):
     EPOCHS = 200
     BATCH = 128
     epoch_batch_size = int(dataset.shape[0] / BATCH)
     batch_half_size = int(BATCH / 2)
 
-    for i in range(EPOCHS):
-        for j in range(epoch_batch_size):
+    for epoch in range(0, EPOCHS):
+        for epoch_batch in range(0, epoch_batch_size):
             # generate samples (both fake and real)
-            (x_real, y_real), (x_fake, y_fake) = util.generate_samples(
+            (x_real, y_real), (x_fake, y_fake) = util.get_fake_and_real_images_and_labels(
                 dataset, generator, latent_dim, batch_half_size
             )
 
@@ -30,23 +30,17 @@ def train(generator, discriminator, gan, dataset, latent_dim):
             gan_loss = gan.train_on_batch(gan_input, gan_output)
 
         print(
-            "[INFO] EPOCH %d: loss_real=%.3f, loss_fake=%.3f, gan_loss=%.3f"
-            % (i + 1, loss_real, loss_fake, gan_loss)
+            "[INFO] EPOCH %d: loss_real=%.4f, loss_fake=%.4f, gan_loss=%.4f"
+            % (epoch + 1, loss_real, loss_fake, gan_loss)
         )
-        if (i + 1) % 10 == 0:
-            util.print_eval(generator, discriminator, dataset, latent_dim, i)
+        if (epoch + 1) % 10 == 0:
+            util.print_eval(generator, discriminator, dataset, latent_dim, epoch)
 
 
-# MAIN 
-# size of the latent space
+# MAIN
 LATENT_DIM = 100
-# create the discriminator
-discriminator = model.define_discriminator()
-# create the generator
-generator = model.define_generator(LATENT_DIM)
-# create the gan
-gan_model = model.define_gan(generator, discriminator)
-# load image data
-dataset_celeb = util.load_dataset()
-# train model
-train(generator, discriminator, gan_model, dataset_celeb, LATENT_DIM)
+discriminator = model.build_discriminator()
+generator = model.build_generator(LATENT_DIM)
+gan_model = model.build_gan(generator, discriminator)
+dataset = util.load_dataset()
+train_model(gan_model, generator, discriminator, dataset, LATENT_DIM)

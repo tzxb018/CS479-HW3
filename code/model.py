@@ -1,38 +1,39 @@
-import numpy as np  # to use numpy arrays
-import tensorflow as tf  # to specify and run computation graphs
-import tensorflow_datasets as tfds  # to load training data
-import matplotlib.pyplot as plt  # to visualize data and draw plots
-from tqdm import tqdm  # to track progress of loops
+import numpy as np
+import tensorflow as tf
+import tensorflow_datasets as tfds
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Sequential
 
 
-def define_discriminator(in_shape=(32, 32, 3)):
+def build_discriminator(in_shape=(32, 32, 3)):
 
     # modelled after discriminator defined in Brownlee's work
     discriminator = Sequential()
-    discriminator.add(Conv2D(64, (3, 3), padding="same", input_shape=in_shape))
+    discriminator.add(Conv2D(32, (3, 3), padding="same", input_shape=in_shape))
+    discriminator.add(LeakyReLU(alpha=0.2))
+    discriminator.add(Conv2D(64, (3, 3), strides=(2, 2), padding="same"))
+    discriminator.add(LeakyReLU(alpha=0.2))
+    discriminator.add(Conv2D(64, (3, 3), strides=(2, 2), padding="same"))
     discriminator.add(LeakyReLU(alpha=0.2))
     discriminator.add(Conv2D(128, (3, 3), strides=(2, 2), padding="same"))
-    discriminator.add(LeakyReLU(alpha=0.2))
-    discriminator.add(Conv2D(128, (3, 3), strides=(2, 2), padding="same"))
-    discriminator.add(LeakyReLU(alpha=0.2))
-    discriminator.add(Conv2D(256, (3, 3), strides=(2, 2), padding="same"))
     discriminator.add(LeakyReLU(alpha=0.2))
     discriminator.add(Flatten())
-    discriminator.add(Dropout(0.4))
+    discriminator.add(Dropout(0.5))
     discriminator.add(Dense(1, activation="sigmoid"))
 
-    opt = Adam(lr=0.0002, beta_1=0.5)
     discriminator.compile(
-        loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"]
+        loss="binary_crossentropy",
+        optimizer=Adam(lr=0.0002, beta_1=0.5),
+        metrics=["accuracy"],
     )
     discriminator.summary()
     return discriminator
 
 
-def define_generator(latent_dim):
+def build_generator(latent_dim):
 
     # modelled off infoGAN
     generator = Sequential()
@@ -54,7 +55,7 @@ def define_generator(latent_dim):
     return generator
 
 
-def define_gan(generator, discriminator):
+def build_gan(generator, discriminator):
     discriminator.trainable = False
     gan = Sequential()
     gan.add(generator)
